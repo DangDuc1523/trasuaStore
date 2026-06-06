@@ -8,12 +8,26 @@ using TraSuaMoc.API.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Database ──────────────────────────────────────────────
-var connStr = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? Environment.GetEnvironmentVariable("DATABASE_URL")
+var rawConn = Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new Exception("Thiếu connection string DATABASE_URL");
 
-builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseNpgsql(connStr));
+// Convert postgresql:// → format Npgsql đọc được (Neon, Render dùng dạng URI)
+string connStr;
+if (rawConn.StartsWith("postgresql://") || rawConn.StartsWith("postgres://"))
+{
+    var uri = new Uri(rawConn);
+    var userInfo = uri.UserInfo.Split(':');
+    connStr = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};" +
+              $"Username={userInfo[0]};Password={userInfo[1]};" +
+              $"SSL Mode=Require;Trust Server Certificate=true";
+}
+else
+{
+    connStr = rawConn;
+}
+
+builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(connStr));
 
 // ── JWT Auth ──────────────────────────────────────────────
 var jwtKey = builder.Configuration["Jwt:Key"]
@@ -51,14 +65,21 @@ builder.Services.AddCors(opt => opt.AddPolicy("FrontendPolicy", p =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Trà Sữa Mộc API", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
-        Type = SecuritySchemeType.Http, Scheme = "bearer", BearerFormat = "JWT"
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement {{
         new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }},
         Array.Empty<string>()
     }});
 });
+
+// ✅ KHÔNG dùng UseUrls cứng — Render tự inject PORT
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 var app = builder.Build();
 
