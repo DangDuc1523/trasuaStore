@@ -57,8 +57,8 @@ public class OrdersController(AppDbContext db) : ControllerBase
     {
         var order = await db.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == id);
         if (order is null) return NotFound();
-        if (!new[] { "new", "making", "done" }.Contains(dto.Status))
-            return BadRequest("Status phải là: new, making, done");
+        if (!new[] { "new", "making", "ready", "done" }.Contains(dto.Status))
+            return BadRequest("Status phải là: new, making, ready, done");
         order.Status = dto.Status;
         await db.SaveChangesAsync();
         return ToDto(order);

@@ -61,6 +61,7 @@ public class MenuController(AppDbContext db) : ControllerBase
         if (dto.IsHot.HasValue) item.IsHot = dto.IsHot.Value;
         if (dto.IsNew.HasValue) item.IsNew = dto.IsNew.Value;
         if (dto.IsHidden.HasValue) item.IsHidden = dto.IsHidden.Value;
+        if (dto.Image is not null) item.Image = dto.Image;
 
         await db.SaveChangesAsync();
         return ToDto(item);

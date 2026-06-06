@@ -5,10 +5,10 @@ public record MenuItemDto(int Id, string Name, string Description, decimal Price
     string Emoji, string Category, bool IsHot, bool IsNew, bool IsHidden);
 
 public record CreateMenuItemDto(string Name, string Description, decimal Price,
-    string Emoji, string Category, bool IsHot, bool IsNew, bool IsHidden);
+    string Emoji, string Category, bool IsHot, bool IsNew, bool IsHidden, string? Image);
 
 public record UpdateMenuItemDto(string? Name, string? Description, decimal? Price,
-    string? Emoji, string? Category, bool? IsHot, bool? IsNew, bool? IsHidden);
+    string? Emoji, string? Category, bool? IsHot, bool? IsNew, bool? IsHidden, string? Image);
 
 // Order
 public record PlaceOrderDto(string TableNumber, List<OrderItemDto> Items);
