@@ -58,9 +58,10 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
 // ── CORS ──────────────────────────────────────────────────
-var allowedOrigins = builder.Configuration["AllowedOrigins"]
-    ?? Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")
-    ?? "http://localhost:4200";
+builder.Services.AddCors(opt => opt.AddPolicy("FrontendPolicy", p =>
+    p.AllowAnyOrigin()
+     .AllowAnyHeader()
+     .AllowAnyMethod()));
 
 builder.Services.AddCors(opt => opt.AddPolicy("FrontendPolicy", p =>
     p.WithOrigins(allowedOrigins.Split(','))

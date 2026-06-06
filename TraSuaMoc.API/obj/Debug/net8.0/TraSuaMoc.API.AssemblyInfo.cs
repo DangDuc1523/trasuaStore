@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TraSuaMoc.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+916a3e75f0373113291925b8ae1af1e3bfdee68d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d6b423da0916606159d62a3b1e023c91ae048a68")]
 [assembly: System.Reflection.AssemblyProductAttribute("TraSuaMoc.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TraSuaMoc.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
