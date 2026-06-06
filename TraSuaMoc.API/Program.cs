@@ -12,14 +12,13 @@ var rawConn = Environment.GetEnvironmentVariable("DATABASE_URL")
     ?? builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new Exception("Thiếu connection string DATABASE_URL");
 
-// Convert postgresql:// → format Npgsql đọc được
 string connStr;
 if (rawConn.StartsWith("postgresql://") || rawConn.StartsWith("postgres://"))
 {
     var uri = new Uri(rawConn);
     var userInfo = uri.UserInfo.Split(':');
     var host = uri.Host;
-    var port = uri.Port > 0 ? uri.Port : 5432; // ✅ fallback 5432 nếu URI không có port
+    var port = uri.Port > 0 ? uri.Port : 5432;
     var database = uri.AbsolutePath.TrimStart('/');
     var username = userInfo[0];
     var password = userInfo[1];
@@ -63,11 +62,6 @@ builder.Services.AddCors(opt => opt.AddPolicy("FrontendPolicy", p =>
      .AllowAnyHeader()
      .AllowAnyMethod()));
 
-builder.Services.AddCors(opt => opt.AddPolicy("FrontendPolicy", p =>
-    p.WithOrigins(allowedOrigins.Split(','))
-     .AllowAnyHeader()
-     .AllowAnyMethod()));
-
 // ── Swagger ───────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => {
@@ -84,7 +78,7 @@ builder.Services.AddSwaggerGen(c => {
     }});
 });
 
-// ✅ Render inject PORT tự động
+// ── Port ──────────────────────────────────────────────────
 var appPort = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{appPort}");
 
