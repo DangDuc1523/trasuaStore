@@ -12,14 +12,20 @@ var rawConn = Environment.GetEnvironmentVariable("DATABASE_URL")
     ?? builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new Exception("Thiếu connection string DATABASE_URL");
 
-// Convert postgresql:// → format Npgsql đọc được (Neon, Render dùng dạng URI)
+// Convert postgresql:// → format Npgsql đọc được
 string connStr;
 if (rawConn.StartsWith("postgresql://") || rawConn.StartsWith("postgres://"))
 {
     var uri = new Uri(rawConn);
     var userInfo = uri.UserInfo.Split(':');
-    connStr = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};" +
-              $"Username={userInfo[0]};Password={userInfo[1]};" +
+    var host = uri.Host;
+    var port = uri.Port > 0 ? uri.Port : 5432; // ✅ fallback 5432 nếu URI không có port
+    var database = uri.AbsolutePath.TrimStart('/');
+    var username = userInfo[0];
+    var password = userInfo[1];
+
+    connStr = $"Host={host};Port={port};Database={database};" +
+              $"Username={username};Password={password};" +
               $"SSL Mode=Require;Trust Server Certificate=true";
 }
 else
@@ -77,9 +83,9 @@ builder.Services.AddSwaggerGen(c => {
     }});
 });
 
-// ✅ KHÔNG dùng UseUrls cứng — Render tự inject PORT
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+// ✅ Render inject PORT tự động
+var appPort = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{appPort}");
 
 var app = builder.Build();
 
